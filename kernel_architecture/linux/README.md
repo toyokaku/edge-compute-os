@@ -70,3 +70,100 @@ Use `cat /proc/cpuinfo` or `lscpu` to view processor features.
 - `inspect_modules.sh`: Scans `/lib/modules/$(uname -r)/` for `.ko` files
 
 > ✅ Tip: Run these scripts with `bash -x` to debug them.
+
+---
+
+## 4. Building and Testing a Minimal Kernel Module
+
+This section explains how to build and safely load a basic kernel module: `minimal_syscall_module.c`. This module logs a message when inserted and removed from the kernel, demonstrating kernel-space execution and lifecycle management.
+
+---
+
+### 🧠 Purpose and Value
+
+This module helps you understand:
+
+- The Linux kernel's modular architecture
+- How to write and insert runtime code into kernel space
+- Kernel logging (`printk`)
+- Lifecycle hooks (`module_init`, `module_exit`)
+- Key differences between kernel and userspace code
+
+---
+
+### 🛠 Step-by-Step Instructions
+
+#### 1. Install Kernel Development Tools
+
+Install the required packages:
+
+    sudo apt update
+    sudo apt install build-essential linux-headers-$(uname -r)
+
+This provides compilers and kernel header files.
+
+#### 2. Create the Source File
+
+Save your kernel module source as:
+
+    kernel_architecture/linux/minimal_syscall_module.c
+
+This file contains the init and exit functions and uses `printk` to write to the kernel log buffer.
+
+#### 3. Create a Makefile in the Same Directory
+
+Name it `Makefile` and save it alongside the `.c` file. It allows out-of-tree compilation against your current kernel headers.
+
+#### 4. Build the Module
+
+In the `linux/` directory, run:
+
+    make
+
+You should now have:
+
+    minimal_syscall_module.ko
+
+This is your compiled kernel module.
+
+#### 5. Load the Module
+
+To insert it into the running kernel:
+
+    sudo insmod minimal_syscall_module.ko
+    dmesg | tail
+
+Expected output:
+
+    Hello from custom kernel module
+
+#### 6. Unload the Module
+
+To remove it safely:
+
+    sudo rmmod minimal_syscall_module
+    dmesg | tail
+
+Expected output:
+
+    Goodbye from custom kernel module
+
+---
+
+### 🛑 Safety Notes
+
+- This module runs in kernel space: any bug can crash your system.
+- Avoid dynamic memory unless you're handling allocation failures.
+- Do not use floating-point math or userspace libraries (like `stdio.h`).
+- Keep logging minimal. Always use `printk()` instead of `printf()`.
+
+---
+
+### 💡 What You've Learned
+
+- How Linux allows runtime extension via `.ko` modules
+- The exact lifecycle of a kernel module
+- Where kernel messages go (`dmesg`)
+- How this approach differs from microkernels (like seL4, where components are statically linked and isolated)
+
+This is your first practical, system-level entry point into custom kernel behavior—next, we’ll explore how memory is allocated, tracked, and shared in kernel and user space.
