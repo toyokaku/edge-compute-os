@@ -16,5 +16,5 @@ jobs:
 
       - name: Push to GitLab
         run: |
-          git remote add gitlab "https://oauth2:${{ secrets.GITLAB_DEPLOY_TOKEN }}@gitlab.com/soc/edgeos.git"
+          git remote add gitlab "https://oauth2:${{ secrets.GITLAB_DEPLOY_TOKEN }}@gitlab.com/alcuka/soc/edgeos.git"
           git push gitlab HEAD:${{ github.ref }}
